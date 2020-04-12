@@ -1,5 +1,4 @@
-#ifndef MESH_H
-#define MESH_H
+#pragma once
 
 #include <glad/glad.h> // holds all OpenGL type declarations
 
@@ -29,33 +28,26 @@ struct Texture {
 
 class Mesh {
 public:
-    /*  Mesh Data  */
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     vector<Texture> textures;
     unsigned int VAO;
 
-    /*  Functions  */
-    // constructor
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures){
         this->vertices = vertices;
         this->indices = indices;
         this->textures = textures;
 
-        // now that we have all the required data, set the vertex buffers and its attribute pointers.
         setupMesh();
     }
 
-    // render the mesh
-    void Draw(Shader shader)
-    {
+    void Draw(Shader shader){
         // bind appropriate textures
         unsigned int diffuseNr = 1;
         unsigned int specularNr = 1;
         unsigned int normalNr = 1;
         unsigned int heightNr = 1;
-        for (unsigned int i = 0; i < textures.size(); i++)
-        {
+        for (unsigned int i = 0; i < textures.size(); i++){
             glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
             // retrieve texture number (the N in diffuse_textureN)
             string number;
@@ -117,4 +109,3 @@ private:
         glBindVertexArray(0);
     }
 };
-#endif

@@ -12,14 +12,11 @@
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/projection.hpp>
 
+#include "Mesh.h"
+
 #define OBJL_CONSOLE_OUTPUT
 
 namespace objl {
-    struct Vertex {
-        glm::vec3 Position;
-        glm::vec3 Normal;
-        glm::vec2 TextureCoordinate;
-    };
 
     struct Material {
         Material() {
@@ -127,54 +124,54 @@ namespace objl {
 
             std::string temp;
 
-            for (int i = 0; i < int(in.size()); i++){
+            for (int i = 0; i < int(in.size()); i++) {
                 std::string test = in.substr(i, token.size());
 
-                if (test == token){
-                    if (!temp.empty()){
+                if (test == token) {
+                    if (!temp.empty()) {
                         out.push_back(temp);
                         temp.clear();
                         i += (int)token.size() - 1;
                     }
-                    else{
+                    else {
                         out.push_back("");
                     }
                 }
-                else if (i + token.size() >= in.size()){
+                else if (i + token.size() >= in.size()) {
                     temp += in.substr(i, token.size());
                     out.push_back(temp);
                     break;
                 }
-                else{
+                else {
                     temp += in[i];
                 }
             }
         }
 
         // Get tail of string after first token and possibly following spaces
-        inline std::string tail(const std::string &in){
+        inline std::string tail(const std::string &in) {
             size_t token_start = in.find_first_not_of(" \t");
             size_t space_start = in.find_first_of(" \t", token_start);
             size_t tail_start = in.find_first_not_of(" \t", space_start);
             size_t tail_end = in.find_last_not_of(" \t");
-            if (tail_start != std::string::npos && tail_end != std::string::npos){
+            if (tail_start != std::string::npos && tail_end != std::string::npos) {
                 return in.substr(tail_start, tail_end - tail_start + 1);
             }
-            else if (tail_start != std::string::npos){
+            else if (tail_start != std::string::npos) {
                 return in.substr(tail_start);
             }
             return "";
         }
 
         // Get first token of string
-        inline std::string firstToken(const std::string &in){
-            if (!in.empty()){
+        inline std::string firstToken(const std::string &in) {
+            if (!in.empty()) {
                 size_t token_start = in.find_first_not_of(" \t");
                 size_t token_end = in.find_first_of(" \t", token_start);
-                if (token_start != std::string::npos && token_end != std::string::npos){
+                if (token_start != std::string::npos && token_end != std::string::npos) {
                     return in.substr(token_start, token_end - token_start);
                 }
-                else if (token_start != std::string::npos){
+                else if (token_start != std::string::npos) {
                     return in.substr(token_start);
                 }
             }
@@ -183,7 +180,7 @@ namespace objl {
 
         // Get element at given index position
         template <class T>
-        inline const T & getElement(const std::vector<T> &elements, std::string &index){
+        inline const T & getElement(const std::vector<T> &elements, std::string &index) {
             int idx = std::stoi(index);
             if (idx < 0)
                 idx = int(elements.size()) + idx;
@@ -193,11 +190,11 @@ namespace objl {
         }
     }
 
-    class Loader{
+    class Loader {
     public:
-        Loader(){
+        Loader() {
         }
-        ~Loader(){
+        ~Loader() {
             LoadedMeshes.clear();
         }
 
@@ -553,7 +550,7 @@ namespace objl {
                 case 1: // P
                 {
                     vVert.Position = algorithm::getElement(iPositions, svert[0]);
-                    vVert.TextureCoordinate = glm::vec2(0, 0);
+                    vVert.TexCoords = glm::vec2(0, 0);
                     noNormal = true;
                     oVerts.push_back(vVert);
                     break;
@@ -561,7 +558,7 @@ namespace objl {
                 case 2: // P/T
                 {
                     vVert.Position = algorithm::getElement(iPositions, svert[0]);
-                    vVert.TextureCoordinate = algorithm::getElement(iTCoords, svert[1]);
+                    vVert.TexCoords = algorithm::getElement(iTCoords, svert[1]);
                     noNormal = true;
                     oVerts.push_back(vVert);
                     break;
@@ -569,7 +566,7 @@ namespace objl {
                 case 3: // P//N
                 {
                     vVert.Position = algorithm::getElement(iPositions, svert[0]);
-                    vVert.TextureCoordinate = glm::vec2(0, 0);
+                    vVert.TexCoords = glm::vec2(0, 0);
                     vVert.Normal = algorithm::getElement(iNormals, svert[2]);
                     oVerts.push_back(vVert);
                     break;
@@ -577,7 +574,7 @@ namespace objl {
                 case 4: // P/T/N
                 {
                     vVert.Position = algorithm::getElement(iPositions, svert[0]);
-                    vVert.TextureCoordinate = algorithm::getElement(iTCoords, svert[1]);
+                    vVert.TexCoords = algorithm::getElement(iTCoords, svert[1]);
                     vVert.Normal = algorithm::getElement(iNormals, svert[2]);
                     oVerts.push_back(vVert);
                     break;
