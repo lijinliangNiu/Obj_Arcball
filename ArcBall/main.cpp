@@ -32,7 +32,7 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-int main(){
+int main() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -40,7 +40,7 @@ int main(){
 
     // glfw window creation
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-    if (window == NULL){
+    if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
@@ -51,7 +51,7 @@ int main(){
     glfwSetCursorPosCallback(window, cursorCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
@@ -63,9 +63,9 @@ int main(){
     Shader ourShader("vertex.glsl", "fragment.glsl");
 
     // load models
-    Model ourModel("C:/Users/Niu Lijinliang/source/repos/ArcBall/ArcBall/Tails.obj");
+    Model ourModel("C:/Users/Niu Lijinliang/Downloads/LearnOpenGL-master/resources/objects/nanosuit/nanosuit.obj");
 
-    while (!glfwWindowShouldClose(window)){
+    while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -101,7 +101,7 @@ int main(){
     return 0;
 }
 
-void processInput(GLFWwindow *window){
+void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
@@ -115,11 +115,11 @@ void processInput(GLFWwindow *window){
         camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height){
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     camera.ProcessMouseScroll(yoffset);
 }
 

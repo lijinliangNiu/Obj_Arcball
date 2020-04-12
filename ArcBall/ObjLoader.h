@@ -9,15 +9,19 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define OBJL_CONSOLE_OUTPUT
+
 namespace objl{
     struct Vertex{
         glm::vec3 Position;
         glm::vec3 Normal;
-        glm::vec2 TexCoords;
+        glm::vec2 TextureCoordinate;
     };
 
-    struct Material{
-        Material(){
+    struct Material
+    {
+        Material()
+        {
             name;
             Ns = 0.0f;
             Ni = 0.0f;
@@ -58,16 +62,25 @@ namespace objl{
     struct Mesh{
         Mesh(){
         }
-        Mesh(std::vector<Vertex>& _Vertices, std::vector<unsigned int>& _Indices){
+        Mesh(std::vector<Vertex>& _Vertices, std::vector<unsigned int>& _Indices) {
             Vertices = _Vertices;
             Indices = _Indices;
         }
+        // Mesh Name
+        std::string MeshName;
         // Vertex List
         std::vector<Vertex> Vertices;
         // Index List
         std::vector<unsigned int> Indices;
+
+        // Material
+        Material MeshMaterial;
     };
 
+    // Namespace: Math
+    //
+    // Description: The namespace that holds all of the math
+    //	functions need for OBJL
     namespace math
     {
         // glm::vec3 Magnitude Calculation
@@ -98,14 +111,21 @@ namespace objl{
         }
     }
 
-    namespace algorithm{
+    // Namespace: Algorithm
+    //
+    // Description: The namespace that holds all of the
+    // Algorithms needed for OBJL
+    namespace algorithm
+    {
         // glm::vec3 Multiplication Opertor Overload
-        glm::vec3 operator*(const float& left, const glm::vec3& right){
-            return glm::vec3(right.x * left, right.y * left, right.y * left);
+        glm::vec3 operator*(const float& left, const glm::vec3& right)
+        {
+            return glm::vec3(right.x * left, right.y * left, right.z * left);
         }
 
         // A test to see if P1 is on the same side as P2 of a line segment ab
-        bool SameSide(glm::vec3 p1, glm::vec3 p2, glm::vec3 a, glm::vec3 b){
+        bool SameSide(glm::vec3 p1, glm::vec3 p2, glm::vec3 a, glm::vec3 b)
+        {
             glm::vec3 cp1 = glm::cross(b - a, p1 - a);
             glm::vec3 cp2 = glm::cross(b - a, p2 - a);
 
@@ -116,7 +136,8 @@ namespace objl{
         }
 
         // Generate a cross produect normal for a triangle
-        glm::vec3 GenTriNormal(glm::vec3 t1, glm::vec3 t2, glm::vec3 t3){
+        glm::vec3 GenTriNormal(glm::vec3 t1, glm::vec3 t2, glm::vec3 t3)
+        {
             glm::vec3 u = t2 - t1;
             glm::vec3 v = t3 - t1;
 
@@ -126,7 +147,8 @@ namespace objl{
         }
 
         // Check to see if a glm::vec3 Point is within a 3 glm::vec3 Triangle
-        bool inTriangle(glm::vec3 point, glm::vec3 tri1, glm::vec3 tri2, glm::vec3 tri3){
+        bool inTriangle(glm::vec3 point, glm::vec3 tri1, glm::vec3 tri2, glm::vec3 tri3)
+        {
             // Test to see if it is within an infinite prism that the triangle outlines.
             bool within_tri_prisim = SameSide(point, tri1, tri2, tri3) && SameSide(point, tri2, tri1, tri3)
                 && SameSide(point, tri3, tri1, tri2);
@@ -152,59 +174,73 @@ namespace objl{
         // Split a String into a string array at a given token
         inline void split(const std::string &in,
             std::vector<std::string> &out,
-            std::string token){
+            std::string token)
+        {
             out.clear();
 
             std::string temp;
 
-            for (int i = 0; i < int(in.size()); i++){
+            for (int i = 0; i < int(in.size()); i++)
+            {
                 std::string test = in.substr(i, token.size());
 
-                if (test == token){
-                    if (!temp.empty()){
+                if (test == token)
+                {
+                    if (!temp.empty())
+                    {
                         out.push_back(temp);
                         temp.clear();
                         i += (int)token.size() - 1;
                     }
-                    else{
+                    else
+                    {
                         out.push_back("");
                     }
                 }
-                else if (i + token.size() >= in.size()){
+                else if (i + token.size() >= in.size())
+                {
                     temp += in.substr(i, token.size());
                     out.push_back(temp);
                     break;
                 }
-                else{
+                else
+                {
                     temp += in[i];
                 }
             }
         }
 
         // Get tail of string after first token and possibly following spaces
-        inline std::string tail(const std::string &in){
+        inline std::string tail(const std::string &in)
+        {
             size_t token_start = in.find_first_not_of(" \t");
             size_t space_start = in.find_first_of(" \t", token_start);
             size_t tail_start = in.find_first_not_of(" \t", space_start);
             size_t tail_end = in.find_last_not_of(" \t");
-            if (tail_start != std::string::npos && tail_end != std::string::npos){
+            if (tail_start != std::string::npos && tail_end != std::string::npos)
+            {
                 return in.substr(tail_start, tail_end - tail_start + 1);
             }
-            else if (tail_start != std::string::npos){
+            else if (tail_start != std::string::npos)
+            {
                 return in.substr(tail_start);
             }
             return "";
         }
 
         // Get first token of string
-        inline std::string firstToken(const std::string &in){
-            if (!in.empty()){
+        inline std::string firstToken(const std::string &in)
+        {
+            if (!in.empty())
+            {
                 size_t token_start = in.find_first_not_of(" \t");
                 size_t token_end = in.find_first_of(" \t", token_start);
-                if (token_start != std::string::npos && token_end != std::string::npos){
+                if (token_start != std::string::npos && token_end != std::string::npos)
+                {
                     return in.substr(token_start, token_end - token_start);
                 }
-                else if (token_start != std::string::npos){
+                else if (token_start != std::string::npos)
+                {
                     return in.substr(token_start);
                 }
             }
@@ -213,7 +249,8 @@ namespace objl{
 
         // Get element at given index position
         template <class T>
-        inline const T & getElement(const std::vector<T> &elements, std::string &index){
+        inline const T & getElement(const std::vector<T> &elements, std::string &index)
+        {
             int idx = std::stoi(index);
             if (idx < 0)
                 idx = int(elements.size()) + idx;
@@ -223,18 +260,34 @@ namespace objl{
         }
     }
 
-    class Loader{
+    // Class: Loader
+    //
+    // Description: The OBJ Model Loader
+    class Loader
+    {
     public:
-        Loader(){
+        // Default Constructor
+        Loader()
+        {
+
         }
-        ~Loader(){
+        ~Loader()
+        {
             LoadedMeshes.clear();
         }
 
-        bool LoadFile(std::string Path){
+        // Load a file into the loader
+        //
+        // If file is loaded return true
+        //
+        // If the file is unable to be found
+        // or unable to be loaded return false
+        bool LoadFile(std::string Path)
+        {
             // If the file is not an .obj file return false
             if (Path.substr(Path.size() - 4, 4) != ".obj")
                 return false;
+
 
             std::ifstream file(Path);
 
@@ -259,26 +312,55 @@ namespace objl{
 
             Mesh tempMesh;
 
+#ifdef OBJL_CONSOLE_OUTPUT
+            const unsigned int outputEveryNth = 1000;
+            unsigned int outputIndicator = outputEveryNth;
+#endif
+
             std::string curline;
-            while (std::getline(file, curline)){
-                if (algorithm::firstToken(curline) == "o" || algorithm::firstToken(curline) == "g" || curline[0] == 'g') {
-                    if (!listening){
+            while (std::getline(file, curline))
+            {
+#ifdef OBJL_CONSOLE_OUTPUT
+                if ((outputIndicator = ((outputIndicator + 1) % outputEveryNth)) == 1)
+                {
+                    if (!meshname.empty())
+                    {
+                        std::cout
+                            << "\r- " << meshname
+                            << "\t| vertices > " << Positions.size()
+                            << "\t| texcoords > " << TCoords.size()
+                            << "\t| normals > " << Normals.size()
+                            << "\t| triangles > " << (Vertices.size() / 3)
+                            << (!MeshMatNames.empty() ? "\t| material: " + MeshMatNames.back() : "");
+                    }
+                }
+#endif
+
+                // Generate a Mesh Object or Prepare for an object to be created
+                if (algorithm::firstToken(curline) == "o" || algorithm::firstToken(curline) == "g" || curline[0] == 'g')
+                {
+                    if (!listening)
+                    {
                         listening = true;
 
-                        if (algorithm::firstToken(curline) == "o" || algorithm::firstToken(curline) == "g"){
+                        if (algorithm::firstToken(curline) == "o" || algorithm::firstToken(curline) == "g")
+                        {
                             meshname = algorithm::tail(curline);
                         }
-                        else{
+                        else
+                        {
                             meshname = "unnamed";
                         }
                     }
-                    else{
+                    else
+                    {
                         // Generate the mesh to put into the array
 
                         if (!Indices.empty() && !Vertices.empty())
                         {
                             // Create Mesh
                             tempMesh = Mesh(Vertices, Indices);
+                            tempMesh.MeshName = meshname;
 
                             // Insert Mesh
                             LoadedMeshes.push_back(tempMesh);
@@ -302,6 +384,10 @@ namespace objl{
                             }
                         }
                     }
+#ifdef OBJL_CONSOLE_OUTPUT
+                    std::cout << std::endl;
+                    outputIndicator = 0;
+#endif
                 }
                 // Generate a Vertex Position
                 if (algorithm::firstToken(curline) == "v")
@@ -375,6 +461,34 @@ namespace objl{
                 if (algorithm::firstToken(curline) == "usemtl")
                 {
                     MeshMatNames.push_back(algorithm::tail(curline));
+
+                    // Create new Mesh, if Material changes within a group
+                    if (!Indices.empty() && !Vertices.empty())
+                    {
+                        // Create Mesh
+                        tempMesh = Mesh(Vertices, Indices);
+                        tempMesh.MeshName = meshname;
+                        int i = 2;
+                        while (1) {
+                            tempMesh.MeshName = meshname + "_" + std::to_string(i);
+
+                            for (auto &m : LoadedMeshes)
+                                if (m.MeshName == tempMesh.MeshName)
+                                    continue;
+                            break;
+                        }
+
+                        // Insert Mesh
+                        LoadedMeshes.push_back(tempMesh);
+
+                        // Cleanup
+                        Vertices.clear();
+                        Indices.clear();
+                    }
+
+#ifdef OBJL_CONSOLE_OUTPUT
+                    outputIndicator = 0;
+#endif
                 }
                 // Load Materials
                 if (algorithm::firstToken(curline) == "mtllib")
@@ -398,16 +512,26 @@ namespace objl{
 
                     pathtomat += algorithm::tail(curline);
 
+#ifdef OBJL_CONSOLE_OUTPUT
+                    std::cout << std::endl << "- find materials in: " << pathtomat << std::endl;
+#endif
+
                     // Load Materials
                     LoadMaterials(pathtomat);
                 }
             }
+
+#ifdef OBJL_CONSOLE_OUTPUT
+            std::cout << std::endl;
+#endif
+
             // Deal with last mesh
 
             if (!Indices.empty() && !Vertices.empty())
             {
                 // Create Mesh
                 tempMesh = Mesh(Vertices, Indices);
+                tempMesh.MeshName = meshname;
 
                 // Insert Mesh
                 LoadedMeshes.push_back(tempMesh);
@@ -419,6 +543,17 @@ namespace objl{
             for (int i = 0; i < MeshMatNames.size(); i++)
             {
                 std::string matname = MeshMatNames[i];
+
+                // Find corresponding material name in loaded materials
+                // when found copy material variables into mesh material
+                for (int j = 0; j < LoadedMaterials.size(); j++)
+                {
+                    if (LoadedMaterials[j].name == matname)
+                    {
+                        LoadedMeshes[i].MeshMaterial = LoadedMaterials[j];
+                        break;
+                    }
+                }
             }
 
             if (LoadedMeshes.empty() && LoadedVertices.empty() && LoadedIndices.empty())
@@ -499,7 +634,7 @@ namespace objl{
                 case 1: // P
                 {
                     vVert.Position = algorithm::getElement(iPositions, svert[0]);
-                    vVert.TexCoords = glm::vec2(0, 0);
+                    vVert.TextureCoordinate = glm::vec2(0, 0);
                     noNormal = true;
                     oVerts.push_back(vVert);
                     break;
@@ -507,7 +642,7 @@ namespace objl{
                 case 2: // P/T
                 {
                     vVert.Position = algorithm::getElement(iPositions, svert[0]);
-                    vVert.TexCoords = algorithm::getElement(iTCoords, svert[1]);
+                    vVert.TextureCoordinate = algorithm::getElement(iTCoords, svert[1]);
                     noNormal = true;
                     oVerts.push_back(vVert);
                     break;
@@ -515,7 +650,7 @@ namespace objl{
                 case 3: // P//N
                 {
                     vVert.Position = algorithm::getElement(iPositions, svert[0]);
-                    vVert.TexCoords = glm::vec2(0, 0);
+                    vVert.TextureCoordinate = glm::vec2(0, 0);
                     vVert.Normal = algorithm::getElement(iNormals, svert[2]);
                     oVerts.push_back(vVert);
                     break;
@@ -523,7 +658,7 @@ namespace objl{
                 case 4: // P/T/N
                 {
                     vVert.Position = algorithm::getElement(iPositions, svert[0]);
-                    vVert.TexCoords = algorithm::getElement(iTCoords, svert[1]);
+                    vVert.TextureCoordinate = algorithm::getElement(iTCoords, svert[1]);
                     vVert.Normal = algorithm::getElement(iNormals, svert[2]);
                     oVerts.push_back(vVert);
                     break;
