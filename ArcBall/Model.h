@@ -10,6 +10,8 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "ObjLoader.h"
+#include "StlLoader.h"
+#include "3DSLoader.h"
 
 #include <string>
 #include <fstream>
@@ -17,9 +19,10 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
-unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
+unsigned int TextureFromFile(const char *path, const string &directory);
 
 class Model {
 public:
@@ -29,7 +32,22 @@ public:
     bool gammaCorrection;
 
     Model(string const &path, bool gamma = false) : gammaCorrection(gamma) {
-        loadModel(path);
+        directory = path.substr(0, path.find_last_of('/'));
+        string ext = path.substr(path.size() - 4, 4);
+        transform(ext.begin(), ext.end(), ext.begin(), tolower);
+        if (ext == ".obj") {
+            loadObj(path);
+        }
+        else if (ext == ".stl") {
+            Mesh mesh = loadStl(path);
+            this->meshes.push_back(mesh);
+        }
+        else if (ext == ".3ds") {
+            load3ds(path);
+        }
+        else {
+            cout << "cannot find the file or the file is unsupported" << endl;
+        }
     }
 
     void Draw(Shader shader) {
@@ -65,11 +83,9 @@ private:
         return Mesh(objl_mesh.Vertices, objl_mesh.Indices, textures);
     }
 
-    void loadModel(string const &path) {
+    void loadObj(string const &path) {
         objl::Loader Loader;
         bool loadout = Loader.LoadFile(path);
-
-        directory = path.substr(0, path.find_last_of('/'));
 
         if (loadout) {
             for (int i = 0; i < Loader.LoadedMeshes.size(); i++) {
@@ -81,9 +97,59 @@ private:
             cout << "Failed to Load File. May have failed to find it or it was not an .obj file.\n";
         }
     }
+
+    Mesh _3ds2mesh(My3DObject _3ds) {
+        vector<Vertex> mesh_vertices;
+        for (int i = 0; i < _3ds.no_vertices; i++) {
+            Vertex vertex;
+            vertex.Position = _3ds.vertices[i];
+            vertex.Normal = glm::vec3(0.0f);
+            vertex.TexCoords = glm::vec2(0.0f);
+            mesh_vertices.push_back(vertex);
+        }
+        vector<unsigned int> mesh_indices;
+        for (int i = 0; i < _3ds.no_faces * 3; i++) {
+            mesh_indices.push_back(_3ds.indices[i]);
+        }
+        vector<Texture> textures;
+        return Mesh(mesh_vertices, mesh_indices, textures);
+    }
+
+    void load3ds(string const& path) {
+        queue<My3DObject> *objects = new queue<My3DObject>;
+        if (readChunks(path.c_str(), *objects) == 0) {
+            printf("Error reading %s file. Make sure it exists and has the right format.", path.c_str());
+        }
+        while (!objects->empty()) {
+            My3DObject current = (My3DObject)objects->front();
+            this->meshes.push_back(_3ds2mesh(current));
+            objects->pop();
+        }
+    }
+
+    Mesh loadStl(string const &path) {
+        STLreader* stlLoader = new STLreader(path);
+        std::vector<glm::vec3> vertices = stlLoader->getVertices();
+
+        vector<Vertex> mesh_vertices;
+        for (const auto& vertex : vertices) {
+            Vertex mesh_vertex;
+            mesh_vertex.Position = vertex;
+            mesh_vertex.Normal = glm::vec3(0.0f);
+            mesh_vertex.TexCoords = glm::vec3(0.0f);
+            mesh_vertices.push_back(mesh_vertex);
+
+        }
+        vector<unsigned int> mesh_indices;
+        for (unsigned int i = 0; i < stlLoader->getNumberOfFaces() * 3; i++) {
+            mesh_indices.push_back(i);
+        }
+        vector<Texture> textures;
+        return Mesh(mesh_vertices, mesh_indices, textures);
+    }
 };
 
-unsigned int TextureFromFile(const char *path, const string &directory, bool gamma) {
+unsigned int TextureFromFile(const char *path, const string &directory) {
     string filename = string(path);
     filename = directory + '/' + filename;
 

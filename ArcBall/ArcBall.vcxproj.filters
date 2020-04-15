@@ -50,6 +50,12 @@
     <ClInclude Include="Arcball.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="StlLoader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="3DSLoader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl">

@@ -24,6 +24,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="3DSLoader.h" />
     <ClInclude Include="Arcball.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Mesh.h" />
@@ -31,6 +32,7 @@
     <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
+    <ClInclude Include="StlLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl" />

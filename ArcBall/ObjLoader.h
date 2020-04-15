@@ -14,8 +14,6 @@
 
 #include "Mesh.h"
 
-#define OBJL_CONSOLE_OUTPUT
-
 namespace objl {
 
     struct Material {

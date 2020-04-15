@@ -50,7 +50,11 @@ void cursorCallback(GLFWwindow *window, double x, double y) {
     arcball.cursorCallback(window, x, y);
 }
 
-int main() {
+int main(int argc, char ** argv) {
+    if (argc < 2) {
+        std::cerr << "Please supply an argument\n";
+        return EXIT_FAILURE;
+    }
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -76,12 +80,8 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     Shader ourShader("vertex.glsl", "fragment.glsl");
-
-    Model ourModel("C:/Users/Niu Lijinliang/Downloads/LearnOpenGL-master/resources/objects/nanosuit/nanosuit.obj");
+    Model ourModel(argv[1]);
    
-    glm::mat4 preModel(1.0f);
-    preModel = glm::translate(preModel, glm::vec3(0.0f, -1.75f, 0.0f));
-    preModel = glm::scale(preModel, glm::vec3(0.2f, 0.2f, 0.2f));
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
         float currentFrame = glfwGetTime();
@@ -102,8 +102,9 @@ int main() {
         ourShader.setMat4("view", view);
 
         glm::mat4 model(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        //model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
+        //model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        //model = glm::scale(model, glm::vec3(0.002f, 0.002f, 0.002f));
         model = model * arcball.getRotationMatrix();
         ourShader.setMat4("model", model);
 
@@ -113,5 +114,5 @@ int main() {
         glfwPollEvents();
     }
     glfwTerminate();
-    return 0;
+    return EXIT_SUCCESS;
 }
