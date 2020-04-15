@@ -67,12 +67,10 @@ public:
             glBindTexture(GL_TEXTURE_2D, textures[i].id);
         }
 
-        // draw mesh
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
-        // always good practice to set everything back to defaults once configured.
         glActiveTexture(GL_TEXTURE0);
     }
 

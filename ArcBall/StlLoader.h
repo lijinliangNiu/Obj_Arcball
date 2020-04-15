@@ -29,14 +29,11 @@
 #define STL_VERTEX "vertex"
 #define STL_NORMAL "normal"
 
-class STLreader
-{
+class STLreader {
 public:
-    //construct take the file name as argument
     STLreader(const std::string& filename) {
         std::ifstream inputFile(filename, std::ios::binary);
-        if (!inputFile)
-        {
+        if (!inputFile) {
             std::cout << "Failed to load the file: " << filename << std::endl;
             return;
         }
@@ -44,11 +41,12 @@ public:
         //check for the format of input file 
         fileFormat = checkFormat(inputFile);
 
-        //read the file using respective methods
-        if (fileFormat == STL_ASCII)
+        if (fileFormat == STL_ASCII) {
             readASCIIstl(inputFile);
-        else
+        }
+        else {
             readBINARYstl(inputFile);
+        }
 
         inputFile.close();
     }
@@ -68,7 +66,6 @@ public:
     }
 
 private:
-    //check whether the given file is ascii or binary
     int checkFormat(std::ifstream& input) {
         //read first 5 bytes
         char format[STL_SOLID_SIZE + 1];
@@ -77,13 +74,11 @@ private:
 
         //compare the array of character if it is solid then file format is ascii
         //otherwise it is binary
-        if (strcmp(format, STL_SOLID_START) == 0)
-        {
+        if (strcmp(format, STL_SOLID_START) == 0) {
             //search for facet word
             if (checkForFacet(input))
                 return STL_ASCII;
         }
-
         return STL_BINARY;
     }
 
@@ -112,24 +107,19 @@ private:
         input.seekg(0, std::ios::beg);
 
         //read till end of file
-        while (input)
-        {
+        while (input) {
             std::string data;
             input >> data;
 
-            if (data == STL_FACE)
-            {
-                do
-                {
+            if (data == STL_FACE) {
+                do {
                     input >> data;
-                    if (data == STL_VERTEX)
-                    {
+                    if (data == STL_VERTEX) {
                         glm::vec3 v;
                         input >> v.x >> v.y >> v.z;
                         vertices.push_back(v);
                     }
-                    else if (data == STL_NORMAL)
-                    {
+                    else if (data == STL_NORMAL) {
                         glm::vec3 n;
                         input >> n.x >> n.y >> n.z;
                         normals.push_back(n);
@@ -157,16 +147,14 @@ private:
         input.read((char*)&numberOfTriangles, sizeof(uint32_t));
 
         //read the triangles and data of each faces
-        for (uint32_t i = 0; i < numberOfTriangles; i++)
-        {
+        for (uint32_t i = 0; i < numberOfTriangles; i++) {
             //read normals which are 3 floats or 12 bytes or 48bit
             glm::vec3 n;
             input.read((char*)& n, STL_BINARY_TRIANGLE_NORMAL_SIZE);
             normals.push_back(n);
 
             //for each face there will be three vertices
-            for (int j = 0; j < STL_NUM_VERTEX_PER_FACE; j++)
-            {
+            for (int j = 0; j < STL_NUM_VERTEX_PER_FACE; j++) {
                 //read vertex which are 3 floats or 12 bytes or 48 bit
                 glm::vec3 v;
                 input.read((char*)& v, STL_BINARY_TRIANGLE_NORMAL_SIZE);
@@ -183,14 +171,11 @@ private:
     }
 
 private:
-    //format
     int fileFormat;
 
-    //number of facet
     uint32_t numberOfTriangles;
     int numberOfvertices;
 
-    //storage
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;
 };

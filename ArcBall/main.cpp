@@ -83,7 +83,6 @@ int main(int argc, char ** argv) {
     Model ourModel(argv[1]);
    
     while (!glfwWindowShouldClose(window)) {
-        // per-frame time logic
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
