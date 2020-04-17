@@ -64,8 +64,8 @@ private:
         return texture;
     }
 
-    Mesh objl2Mesh(objl::Mesh objl_mesh) {
-        objl::Material material = objl_mesh.MeshMaterial;
+    Mesh objl2Mesh(ObjMesh objl_mesh) {
+        Material material = objl_mesh.ObjMeshMaterial;
         vector<Texture> textures;
 
         Texture diffuse_texture = material2Texture(material.map_Kd, "texture_diffuse");
@@ -84,12 +84,12 @@ private:
     }
 
     void loadObj(string const &path) {
-        objl::Loader Loader;
+        ObjLoader Loader;
         bool loadout = Loader.LoadFile(path);
 
         if (loadout) {
-            for (int i = 0; i < Loader.LoadedMeshes.size(); i++) {
-                objl::Mesh curMesh = Loader.LoadedMeshes[i];
+            for (int i = 0; i < Loader.LoadedObjMeshes.size(); i++) {
+                ObjMesh curMesh = Loader.LoadedObjMeshes[i];
                 this->meshes.push_back(objl2Mesh(curMesh));
             }
         }
@@ -179,7 +179,6 @@ unsigned int TextureFromFile(const char *path, const string &directory) {
         stbi_image_free(data);
     }
     else {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
         stbi_image_free(data);
     }
 
