@@ -1,9 +1,4 @@
-/* File 3dsLoader.cpp
- * Reads a 3ds file and loads the vertices and polygons
- * into a structure
- */
-
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <queue>
 

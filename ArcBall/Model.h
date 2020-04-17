@@ -84,17 +84,10 @@ private:
     }
 
     void loadObj(string const &path) {
-        ObjLoader Loader;
-        bool loadout = Loader.LoadFile(path);
-
-        if (loadout) {
-            for (int i = 0; i < Loader.LoadedObjMeshes.size(); i++) {
-                ObjMesh curMesh = Loader.LoadedObjMeshes[i];
-                this->meshes.push_back(objl2Mesh(curMesh));
-            }
-        }
-        else {
-            cout << "Failed to Load File. May have failed to find it or it was not an .obj file.\n";
+        ObjLoader Loader(path);
+        for (int i = 0; i < Loader.LoadedObjMeshes.size(); i++) {
+            ObjMesh curMesh = Loader.LoadedObjMeshes[i];
+            this->meshes.push_back(objl2Mesh(curMesh));
         }
     }
 
