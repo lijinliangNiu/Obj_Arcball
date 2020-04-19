@@ -91,32 +91,51 @@ private:
         }
     }
 
-    Mesh _3ds2mesh(My3DObject _3ds) {
-        vector<Vertex> mesh_vertices;
-        for (int i = 0; i < _3ds.no_vertices; i++) {
-            Vertex vertex;
-            vertex.Position = _3ds.vertices[i];
-            vertex.Normal = glm::vec3(0.0f);
-            vertex.TexCoords = glm::vec2(0.0f);
-            mesh_vertices.push_back(vertex);
+    Mesh _3ds2mesh(Simple3DS::Object* obj, vector<Texture> textures) {
+        vector<Vertex> Vertices;
+        vector<unsigned int> Indices;
+        for (int i = 0; i < obj->getNumOfTriangles(); i++) {
+            Simple3DS::Triangle* face = obj->getTriangle(i);
+            for (int j = 0; j < 3; j++) {
+                Vertex vertex;
+                Simple3DS::Vertex* v = obj->getVertex(face->index[j]);
+                Simple3DS::TextureCoord* tc = obj->getTextureCoord(face->index[j]);
+                Simple3DS::Normal* n = obj->getNormal(face->index[j]);
+                vertex.Position.x = v->x;
+                vertex.Position.y = v->y;
+                vertex.Position.z = v->z;
+                vertex.TexCoords.x = tc->u;
+                vertex.TexCoords.y = tc->v;
+                vertex.Normal.x = n->nx;
+                vertex.Normal.y = n->ny;
+                vertex.Normal.z = n->nz;
+                Vertices.push_back(vertex);
+            }
         }
-        vector<unsigned int> mesh_indices;
-        for (int i = 0; i < _3ds.no_faces * 3; i++) {
-            mesh_indices.push_back(_3ds.indices[i]);
+        for (int i = 0; i < obj->getNumOfTriangles() * 3; i++) {
+            Indices.push_back(i);
         }
-        vector<Texture> textures;
-        return Mesh(mesh_vertices, mesh_indices, textures);
+        return Mesh(Vertices, Indices, textures);
     }
 
+    Texture material2Texture(Simple3DS::Material* material, string type) {
+        Texture texture;
+        texture.id = TextureFromFile(material->getFileName().c_str(), this->directory);
+        texture.type = type;
+        texture.path = material->getFileName().c_str();
+        return texture;
+    }
     void load3ds(string const& path) {
-        queue<My3DObject> *objects = new queue<My3DObject>;
-        if (readChunks(path.c_str(), *objects) == 0) {
-            printf("Error reading %s file. Make sure it exists and has the right format.", path.c_str());
+        // second argument determines if the Y & Z axis should be swapped.
+        Simple3DS::Model3DS model(path,true);  
+        vector<Texture> textures;
+        for (int i = 0; i < model.data.getNumOfMaterials(); i++) {
+            Texture texture = material2Texture(model.data.getMaterial(i), "texture_diffuse");
+            textures.push_back(texture);
         }
-        while (!objects->empty()) {
-            My3DObject current = (My3DObject)objects->front();
-            this->meshes.push_back(_3ds2mesh(current));
-            objects->pop();
+        for (int i = 0; i < model.data.getNumOfObjects(); i++) {
+            Simple3DS::Object* obj = model.data.getObject(i);
+            this->meshes.push_back(_3ds2mesh(obj, textures));
         }
     }
 
